@@ -3,9 +3,12 @@ import querystring from "querystring";
 const NOW_PLAYING_ENDPOINT =
   "https://api.spotify.com/v1/me/player/currently-playing";
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
-const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
+
+const CLIENT_ID = process.env.WSPOTIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.WSPOTIFY_CLIENT_SECRET;
+const REFRESH_TOKEN = process.env.WSPOTIFY_REFRESH_TOKEN;
+
+// console.log({CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN})
 
 const getAccessToken = async () => {
   const basic = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64");
@@ -38,6 +41,7 @@ const getNowPlaying = async () => {
 export async function GET() {
   try {
     const response = await getNowPlaying();
+    // console.log({response})
 
     // return an error if the user is currently not playing any song
     const error = { isPlaying: false };

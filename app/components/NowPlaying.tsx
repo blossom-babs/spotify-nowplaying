@@ -5,7 +5,8 @@ import useNowPlaying from "../hooks/useNowPlaying";
 const NowPlaying = () => {
   const { currentTrack, loading } = useNowPlaying();
 
-  if (loading) return <p>Loading...</p>;
+  console.log({loading})
+  // if (loading) return <p>Loading...</p>;
 
   if (!currentTrack.isPlaying) return <p>User is offline...</p>;
 
