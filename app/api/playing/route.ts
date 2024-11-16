@@ -2,6 +2,7 @@ import querystring from "querystring";
 
 const NOW_PLAYING_ENDPOINT =
   "https://api.spotify.com/v1/me/player/currently-playing";
+const RECENTTLY_PLAYED_ENDPOINT='https://api.spotify.com/v1/me/player/recently-played'
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
 
 const CLIENT_ID = process.env.WSPOTIFY_CLIENT_ID;
@@ -38,27 +39,59 @@ const getNowPlaying = async () => {
   });
 };
 
+const getRecentlyPlayed = async () => {
+  const { access_token } = await getAccessToken();
+
+  return fetch(RECENTTLY_PLAYED_ENDPOINT, {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+  });
+};
+
 export async function GET() {
   try {
     const response = await getNowPlaying();
-    // console.log({response})
+    const lastPlayed = await getRecentlyPlayed()
+     //console.log({response})
 
+
+    //  const nowPlayingData = await response.json();
+    //  const lastPlayedData = await lastPlayed.json();
+   
     // return an error if the user is currently not playing any song
-    const error = { isPlaying: false };
+   // const error = { isPlaying: false };
     if (response.status === 204 || response.status > 400) {
-      return new Response(JSON.stringify(error), {
-        status: 204,
-        statusText: "User is offline",
-      });
+      const lastPlayedData = await lastPlayed.json();
+      const lastPlayedSong = lastPlayedData.items[0]
+      //console.log(lastPlayedSong.context)
+
+      const title = lastPlayedSong.track.name;
+      const artist = (lastPlayedSong.track.artists as { name: string }[])
+        .map((_artist) => _artist.name)
+        .join(", ");
+      const album = lastPlayedSong.track.album.name;
+      const albumArt = lastPlayedSong.track.album.images[0]?.url;
+      const url = lastPlayedSong.track.context?.external_urls?.spotify;
+      const playedAt = lastPlayedSong.track.playedAt;
+  
+      return new Response(
+        JSON.stringify({title, artist, album, albumArt, url, playedAt })
+      );
+
+      // return new Response(JSON.stringify(error), {
+      //   status: 204,
+      //   statusText: "User is rejuvenating",
+      // });
     }
 
     const song = await response.json();
-    // return an error if spotify doesn't return an item
     if (!song.item) {
-      return new Response(JSON.stringify(error), {
-        status: 404,
-        statusText: "Unable to find song",
-      });
+      return new Response(
+        JSON.stringify({ error: "Unable to find song" }),
+        { status: 404 }
+      );
+  
     }
 
     const isPlaying = song.is_playing;
@@ -73,6 +106,7 @@ export async function GET() {
       JSON.stringify({ isPlaying, title, artist, album, albumArt })
     );
   } catch (error) {
+    //console.log({error})
     return new Response(JSON.stringify(error), {
       status: 500,
       statusText: "Error fetching currently playing",

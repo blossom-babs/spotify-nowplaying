@@ -8,7 +8,9 @@ const NowPlaying = () => {
   console.log({loading})
   // if (loading) return <p>Loading...</p>;
 
-  if (!currentTrack.isPlaying) return <p>User is offline...</p>;
+  console.log({currentTrack})
+
+  // if (!currentTrack.isPlaying) return <p>User is offline...</p>;
 
   return (
     <>
